@@ -8,9 +8,9 @@ var CanvasDrawr = function(options) {
     var canvas = document.getElementById(options.id),
         ctxt = canvas.getContext("2d");
         
-    canvas.style.width = '100%'
+//    canvas.style.width = '100%'
     canvas.width = canvas.offsetWidth;
-    canvas.style.width = '';
+//    canvas.style.width = '';
 
     // set props from options, but the defaults are for the cool kids
     ctxt.lineWidth = options.size || Math.ceil(Math.random() * 35);
@@ -82,6 +82,4 @@ var CanvasDrawr = function(options) {
 };
 
 
-$(function(){
-  var super_awesome_multitouch_drawing_canvas_thingy = new CanvasDrawr({id:"example", size: 15 }); 
-});
+

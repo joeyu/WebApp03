@@ -14,8 +14,7 @@ function MultiTouch(element, callbacks)
         $.each(event.changedTouches, function(i, touch) {
         	// filter target touches
         	if ($.inArray(touch, event.targetTouches) >= 0) {
-        		var date = new Date();
-        		touch.time 	= date.getTime();
+        		touch.time 	= (new Date()).getTime();
         		touch.viX	= 0; 
         		touch.viY	= 0; 
         		self.mTouches[touch.identifier] = [touch];
@@ -34,16 +33,15 @@ function MultiTouch(element, callbacks)
         $.each(event.changedTouches, function(i, touch) {
         	// filter target touches
         	if ($.inArray(touch, event.targetTouches) >= 0) {
-        		var date = new Date();
-        		touch.time 	= date.getTime();
+        		touch.time 		= (new Date()).getTime();
         		var touches 	= self.mTouches[touch.identifier],
         			touchPrev	= touches[touches.length - 1],
         		 	time 		= touch.time - touchPrev.time;
-        		touch.viX	= Math.abs(touch.clientX - touchPrev.clientX) / time; 
-        		touch.viY	= Math.abs(touch.clientY - touchPrev.clientY) / time;
+        		touch.vtX 		= (touch.clientX - touchPrev.clientX) / time; 
+        		touch.vtY		= (touch.clientY - touchPrev.clientY) / time;
         		touches.push(touch);
                 $('#b').html("[" + touch.identifier + ": " + touchPrev.clientX + "," + touch.clientY + "]");
-        		$('#c').html("[" + touch.identifier + ": " + touch.viX.toFixed(2) + "," + touch.viY.toFixed(2) + "]");
+        		$('#c').html("[" + touch.identifier + ": " + touch.vtX.toFixed(2) + "," + touch.vtY.toFixed(2) + "]");
         	}
         });
         if (self.callbacks.touchmove) {
@@ -98,12 +96,14 @@ function CanvasDrawr(options) {
                        
     function draw(event, multiTouch) {
         $.each(event.changedTouches, function(i, touch) {
-            var id  	= touch.identifier,
-            	last 	= multiTouch.mTouches[id].length - 1,
-                x   	= multiTouch.mTouches[id][last - 1].clientX,
-                y   	= multiTouch.mTouches[id][last - 1].clientY,
-                toX 	= multiTouch.mTouches[id][last].clientX,
-                toY 	= multiTouch.mTouches[id][last].clientY;
+            var id  		= touch.identifier,
+        		touch 		= multiTouch.mTouches[id][multiTouch.mTouches[id].length - 1],
+        		touchPre	= multiTouch.mTouches[id][multiTouch.mTouches[id].length - 2],
+        		offset		= $(multiTouch.element).offset();
+                x   		= touch.clientX - offset.left,
+                y   		= touch.clientY - offset.top,
+                toX 		= touchPre.clientX - offset.left,
+                toY 		= touchPre.clientY - offset.top;
 
             context.beginPath();
             context.moveTo(x, y);
@@ -111,8 +111,6 @@ function CanvasDrawr(options) {
             context.stroke();
             context.closePath();            
         });
-
-        event.preventDefault();
     }
 }
 

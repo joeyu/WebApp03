@@ -8,5 +8,5 @@ $(document).ready(function() {
     	.css({width:'100%', height:'80%', borderBottom:'1px solid black'})
     	.appendTo($('body'));
                            
-    var canvasDrawr = CanvasDrawr({id:"canvas_painting", size: 5});
+    var canvasDrawr = new CanvasDrawr({id:"canvas_painting", size: 5});
 });

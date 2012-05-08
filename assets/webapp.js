@@ -1,9 +1,12 @@
 $(document).ready(function() {
-    var canvas_painting = $('<canvas id="canvas_painting" style="width:100%;height:80%;border-bottom:1px solid black"/>')
-                            .appendTo($('body'));
-    $('<a id="a" href="#">abc</a>').insertAfter('#canvas_painting');
-    $('<a id="b" href="#">abc</a>').insertAfter('#a');
-    $('<a id="c" href="#">abc</a>').insertAfter('#b');
-                            
+    $('<p id="p"/>').appendTo($('body'));
+    $('<span id="a" >a</span>').appendTo($('#p'));//.insertAfter('#canvas_painting');
+    $('<span id="b" >b</span>').appendTo($('#p'));
+    $('<span id="c" >c</span>').appendTo($('#p'));
+    $('<span id="d" >d</span>').appendTo($('#p'));
+    $('<canvas id="canvas_painting"/>')
+    	.css({width:'100%', height:'80%', borderBottom:'1px solid black'})
+    	.appendTo($('body'));
+                           
     var canvasDrawr = CanvasDrawr({id:"canvas_painting", size: 5});
 });

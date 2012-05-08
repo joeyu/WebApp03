@@ -1,7 +1,8 @@
 function MultiTouch(element, callbacks)
 {
-    this.touches 	= [];
+    this.mTouches 	= [];
     this.callbacks 	= callbacks;
+    this.element 	= element;
 
 	element.addEventListener('touchstart', 	onTouchstart, 	false);	
 	element.addEventListener('touchmove', 	onTouchmove, 	false);
@@ -11,12 +12,15 @@ function MultiTouch(element, callbacks)
 	function onTouchstart(event) {
 		console.log(event);
         $.each(event.changedTouches, function(i, touch) {
-            var id = touch.identifier;            
-            self.touches[id] = [{ 
-                x: this.clientX, 
-                y: this.clientY, 
-            }];
-    		$('#b').html("[" + id + ": " + this.clientX + "," + this.clientY + "]");
+        	// filter target touches
+        	if ($.inArray(touch, event.targetTouches) >= 0) {
+        		var date = new Date();
+        		touch.time 	= date.getTime();
+        		touch.viX	= 0; 
+        		touch.viY	= 0; 
+        		self.mTouches[touch.identifier] = [touch];
+        		$('#a').html("[" + touch.identifier + ": " + touch.clientX + "," + touch.clientY + "]");
+        	}
         });
         
         if (self.callbacks.touchstart) {
@@ -28,12 +32,19 @@ function MultiTouch(element, callbacks)
 
 	function onTouchmove(event) {
         $.each(event.changedTouches, function(i, touch) {
-            var id = touch.identifier;            
-            self.touches[id].push({ 
-                x: this.clientX, 
-                y: this.clientY, 
-            });
-            $('#c').html("[" + id + ": " + this.clientX + "," + this.clientY + "]");
+        	// filter target touches
+        	if ($.inArray(touch, event.targetTouches) >= 0) {
+        		var date = new Date();
+        		touch.time 	= date.getTime();
+        		var touches 	= self.mTouches[touch.identifier],
+        			touchPrev	= touches[touches.length - 1],
+        		 	time 		= touch.time - touchPrev.time;
+        		touch.viX	= Math.abs(touch.clientX - touchPrev.clientX) / time; 
+        		touch.viY	= Math.abs(touch.clientY - touchPrev.clientY) / time;
+        		touches.push(touch);
+                $('#b').html("[" + touch.identifier + ": " + touchPrev.clientX + "," + touch.clientY + "]");
+        		$('#c').html("[" + touch.identifier + ": " + touch.viX.toFixed(2) + "," + touch.viY.toFixed(2) + "]");
+        	}
         });
         if (self.callbacks.touchmove) {
         	self.callbacks.touchmove(event, self);
@@ -45,10 +56,13 @@ function MultiTouch(element, callbacks)
 		if (self.callbacks.touchend) {
 			self.callbacks.touchend(event);
 		}
+		
+		// dereferencing
         $.each(event.changedTouches, function(i, touch) {
-            var id = touch.identifier;            
-            delete self.touches[id];
-            $('#d').html("[" + id + ": " + this.clientX + "," + this.clientY + "]");
+        	if (touch.target === self.element) {
+                delete self.mTouches[touch.identifier];
+                $('#d').html("[" + touch.identifier + ": " + touch.clientX + "," + touch.clientY + "]");
+        	}
         });
         
         event.preventDefault();
@@ -77,8 +91,6 @@ function CanvasDrawr(options) {
     context.pX = undefined;
     context.pY = undefined;
  
-    var touches = [];
-     
     this.canvas = canvas;
 //    this.context = context;
     
@@ -87,11 +99,11 @@ function CanvasDrawr(options) {
     function draw(event, multiTouch) {
         $.each(event.changedTouches, function(i, touch) {
             var id  	= touch.identifier,
-            	last 	= multiTouch.touches[id].length - 1,
-                x   	= multiTouch.touches[id][last - 1].x,
-                y   	= multiTouch.touches[id][last - 1].y,
-                toX 	= multiTouch.touches[id][last].x,
-                toY 	= multiTouch.touches[id][last].y;
+            	last 	= multiTouch.mTouches[id].length - 1,
+                x   	= multiTouch.mTouches[id][last - 1].clientX,
+                y   	= multiTouch.mTouches[id][last - 1].clientY,
+                toX 	= multiTouch.mTouches[id][last].clientX,
+                toY 	= multiTouch.mTouches[id][last].clientY;
 
             context.beginPath();
             context.moveTo(x, y);
